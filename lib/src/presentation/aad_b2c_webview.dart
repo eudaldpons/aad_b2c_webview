@@ -7,6 +7,7 @@ import 'package:pkce/pkce.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import '../constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// A widget that embeds the Azure AD B2C web view for authentication purposes.
 class ADB2CEmbedWebView extends StatefulWidget {
@@ -86,6 +87,16 @@ class ADB2CEmbedWebViewState extends State<ADB2CEmbedWebView> {
       ..setUserAgent(widget.userAgent)
       ..setNavigationDelegate(
         NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) async {
+            if (request.url.contains('www.ichatmelinde.at')) {
+              final uri = Uri.parse(request.url);
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+                return NavigationDecision.prevent;
+              }
+            }
+            return NavigationDecision.navigate;
+          },
           onProgress: (int progress) {
             // Update loading bar.
           },
